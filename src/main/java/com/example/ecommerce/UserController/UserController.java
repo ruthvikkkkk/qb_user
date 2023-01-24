@@ -8,6 +8,7 @@ import com.example.ecommerce.UserEntity.UserEntity;
 import com.example.ecommerce.UserService.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,46 +26,36 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserService userService;
-//
-//    @Autowired
-//    ContactService contactService;
-
 
     @GetMapping(path="/get")
-    public List<User> display(){
-            List<UserEntity> userList = userService.findAll();
-            List<User> users = new ArrayList<>();
-            for (UserEntity userEntity : userList) {
-                User user = new User();
-                BeanUtils.copyProperties(userEntity, user);
-                users.add(user);
-            }
-            return users;
+    public ResponseEntity<List<User>> getAllUsers(){
+        List<User> userList = new ArrayList<>();
+        for(UserEntity userEntity :userService.findAll()){
+            User user = new User();
+            BeanUtils.copyProperties(userEntity, user);
+            userList.add(user);
         }
 
-
-
-//    @GetMapping(path="/userlogin" )
-//    public Response<Boolean> userlogin2(@RequestParam String email, String password) {
-//
-//        Boolean isTrue = userService.login(email, password);
-//        if (isTrue) {
-//            return new Response<>(true);
-//
-//        } else {
-//            return new Response<>(6001, "unable to login");
-//        }
-//
-//    }
+        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
 
     @PostMapping(value = "signIn")
-    public String signIn(@RequestBody SignInDto signInDto) {
-        return userService.signIn(signInDto);
+    public ResponseEntity<String> signIn(@RequestBody SignInDto signInDto) {
+
+        int response = userService.signIn(signInDto);
+        if(response == 1)
+            return new ResponseEntity<>("Logged In Successfully!", HttpStatus.OK);
+        else if(response == 2)
+            return new ResponseEntity<>("E-mail does not exist!", HttpStatus.OK);
+        else if(response == 3)
+            return new ResponseEntity<>("Password Incorrect!", HttpStatus.OK);
+        return  null;
     }
 
     @PostMapping(value = "/signup")
-    public String signup(@RequestBody User user) {
-        return userService.signup(user);
+    public ResponseEntity<String> signup(@RequestBody User user) {
+
+        return new ResponseEntity<>(userService.signUp(user), HttpStatus.OK);
     }
 
     @GetMapping("/users/{id}")
@@ -73,54 +64,13 @@ public class UserController {
     }
 
 
-//    @RequestMapping(value="/users/{id}", method = RequestMethod.PUT)
-//    public void getUser(@PathVariable String id, @RequestBody UserEntity userEntity) {
-//
-//        userService.updateUser(id, userEntity);
-//
-//    }
-//    @PutMapping("/instructors/{id}")
-//    public Response<User> updateUser(@PathVariable long id, @RequestBody User user) {
-//        user.setId(id);
-//        return Response.ok().body(this.userService.updateUser(user));
-//    }
-
-//    @CrossOrigin(origins = "http://localhost:8080/")
-//    @PostMapping(path="/usersignup" ,produces = "application/json")
-//    public String usersignup(@RequestBody @Valid User user){
-//        return userService.signup(user);
-//
-//    }
-
-//    @CrossOrigin(origins = "http://localhost:8080/")
-//    @PostMapping(path="/contact" ,produces = "application/json")
-//    public void contact(@RequestBody @Valid Contact contact){
-//        contactService.submit(contact);
-//    }
-
-
-//    @CrossOrigin(origins = "http://localhost:8080/")
-//    @GetMapping(path="/byid" ,produces = "application/json")
-//    public Integer byid(@RequestParam @Valid String email,String password){
-//        return userService.byid(email,password);
-//    }
-//@PostMapping("/updateStock")
-//public Response<User> updateStock(@RequestBody UserUpdateDTO userUpdateDTO){
-//    User user = userService.getStock(userUpdateDTO.getSkuId());
-//    user.setPrice(stockUpdateDTO.getPrice());
-//    user.setQuantity(stockUpdateDTO.getQuantity());
-//    UserkDto stockDto = new StockDto();
-//    BeanUtils.copyProperties(stock, stockDto);
-//    return new ResponseEntity<>(stockService.addStock(stockDto), HttpStatus.OK);
-//}
-
 @PostMapping("/updateUsers")
 public ResponseEntity<UserEntity> updateUser(@RequestBody UpdateDto updateDto){
     UserEntity userEntity = userService.getUserById(updateDto.getId());
     userEntity.setAddress1(updateDto.getAddress1());
     userEntity.setCity(updateDto.getCity());
     userEntity.setEmail(updateDto.getEmail());
-    userEntity.setMoblieno(updateDto.getMoblieno());
+    userEntity.setMobile(updateDto.getMobile());
     return new ResponseEntity<>(userEntity, HttpStatus.OK);
 }
 

@@ -8,13 +8,10 @@ import com.example.ecommerce.UserEntity.UserEntity;
 import java.util.List;
 
 public interface UserService {
-//
-//    boolean login(String email,String password);
-    String signup(User user);
 
-//    UserEntity updateUser(UserEntity user);
-    UserEntity updateUsers(UpdateDto updateDto);
+    String signUp(User user);
+    UserEntity updateUser(UpdateDto updateDto);
     List<UserEntity> findAll();
     UserEntity getUserById(int userId);
-    String signIn(SignInDto signInDto);
+    Integer signIn(SignInDto signInDto);
 }
