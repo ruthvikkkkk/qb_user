@@ -11,9 +11,10 @@ public class User {
     private String email;
     private Integer id;
     private String password;
-    private String address1;
+    private String address;
     private String state;
     private String mobile;
     private String city;
     private String confirmPassword;
+    //private CartDTO cartDTO;
 }

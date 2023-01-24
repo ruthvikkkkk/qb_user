@@ -1,5 +1,6 @@
 package com.example.ecommerce.UserEntity;
 
+import com.example.ecommerce.UserDto.CartDTO;
 import lombok.Data;
 import lombok.ToString;
 
@@ -20,8 +21,9 @@ public class UserEntity {
     private String email;
     private String username;
     private String password;
-    private String address1;
+    private String address;
     private String state;
     private String mobile;
     private String city;
+    //private CartDTO cartDTO;
 }

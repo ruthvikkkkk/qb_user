@@ -1,9 +1,8 @@
 package com.example.ecommerce.UserService.UserServiceImpl;
-import com.example.ecommerce.UserDto.SignInDto;
-import com.example.ecommerce.UserDto.UpdateDto;
-import com.example.ecommerce.UserDto.User;
+import com.example.ecommerce.UserDto.*;
 import com.example.ecommerce.UserEntity.UserEntity;
 import com.example.ecommerce.UserRepository.UserRepository;
+import com.example.ecommerce.UserService.FeignServiceUtil;
 import com.example.ecommerce.UserService.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    FeignServiceUtil userFeignClient;
 
     @Override
     public String signUp(User user) {
@@ -45,6 +47,19 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(user, userEntity);
         userEntity.setPassword(encryptedPassword);
 
+        CartDTO cartDTO = new CartDTO();
+        Customer customer = new Customer();
+        CartItem cartItem = new CartItem();
+        cartItem.setQuantity(Double.parseDouble("0"));
+        cartItem.setSKU_ID("");
+        cartItem.setProductDetails(new ProductDetails());
+        cartItem.setProductPrice(Double.parseDouble("0"));
+        BeanUtils.copyProperties(userEntity, customer);
+        cartDTO.setCustomer(customer);
+        cartDTO.setGuest(false);
+        cartDTO.setCartItems((new ArrayList<CartItem>()));
+        //cartDTO.getCartItems().add(cartItem);
+        userFeignClient.createCart(cartDTO);
         userRepository.save(userEntity);
         return "created succsessfully";
     }
@@ -80,6 +95,11 @@ public class UserServiceImpl implements UserService {
         return 1;
     }
 
+    @Override
+    public List<CartItem> addToCart(String cartId, CartItem cartItem) {
+        return userFeignClient.addToCart(cartId, cartItem);
+    }
+
 
     @Override
     public UserEntity updateUser(UpdateDto updateDto) {
@@ -107,5 +127,11 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    @Override
+    public UserEntity getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
 
 }
